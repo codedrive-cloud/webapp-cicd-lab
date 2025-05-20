@@ -1,6 +1,26 @@
 version: 0.2
+
 phases:
+  install:
+    runtime-versions:
+      python: 3.8  # Por si necesitas AWS CLI v2 con dependencias
+    commands:
+      - echo "Instalando dependencias necesarias..."
+      - pip install --upgrade awscli
+
+  pre_build:
+    commands:
+      - echo "Validando configuración..."
+      - aws sts get-caller-identity || { echo "ERROR: No se puede obtener la identidad AWS"; exit 1; }
+      - aws configure get region || echo "Región no configurada en entorno"
+      - echo "Validando plantilla CloudFormation..."
+      - aws cloudformation validate-template --template-body file://infra/infrastructure.yaml || { echo "ERROR: La plantilla es inválida"; exit 1; }
+
   build:
     commands:
       - echo "Desplegando infraestructura..."
-      - aws cloudformation deploy --template-file infra/infrastructure.yaml --stack-name WebAppStack --capabilities CAPABILITY_NAMED_IAM
+      - aws cloudformation deploy \
+          --template-file infra/infrastructure.yaml \
+          --stack-name WebAppStack \
+          --capabilities CAPABILITY_NAMED_IAM \
+          --region us-east-1
