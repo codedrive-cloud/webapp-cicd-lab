@@ -3,7 +3,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: EC2 con CodeDeploy y Apache sin SSH
 
 Resources:
-
   InstanceRole:
     Type: AWS::IAM::Role
     Properties:
