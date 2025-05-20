@@ -1,11 +1,15 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
+
 Description: EC2 con CodeDeploy y Apache sin SSH
+
 Resources:
+
   InstanceRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: WebAppEC2Role
       AssumeRolePolicyDocument:
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
@@ -14,16 +18,27 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEC2FullAccess
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
-  
+
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
+      Path: "/"
       Roles:
         - !Ref InstanceRole
 
+  WebAppSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Web SG
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
   WebAppInstance:
     Type: AWS::EC2::Instance
-
+    DependsOn: InstanceProfile
     Properties:
       InstanceType: t2.micro
       IamInstanceProfile: !Ref InstanceProfile
@@ -42,22 +57,15 @@ Resources:
           service codedeploy-agent start
           yum install -y httpd
           systemctl enable httpd
+          systemctl start httpd
       Tags:
         - Key: Name
           Value: WebAppEC2
 
-  WebAppSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Web SG
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-
 Outputs:
+
   InstanceId:
     Value: !Ref WebAppInstance
+
   PublicIP:
     Value: !GetAtt WebAppInstance.PublicIp
