@@ -14,12 +14,8 @@ phases:
       - aws sts get-caller-identity || { echo "ERROR: No se puede obtener la identidad AWS"; exit 1; }
       - aws configure get region || echo "Región no configurada en entorno"
       - echo "Validando plantilla CloudFormation..."
-
+      
   build:
     commands:
       - echo "Desplegando infraestructura..."
-      - aws cloudformation deploy \
-          --template-file infra/infrastructure.yaml \
-          --stack-name WebAppStack \
-          --capabilities CAPABILITY_NAMED_IAM \
-          --region us-east-1
+      - aws cloudformation deploy --template-file infra/infrastructure.yaml --stack-name WebAppStack --capabilities CAPABILITY_NAMED_IAM --region us-east-1
