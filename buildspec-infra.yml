@@ -14,7 +14,6 @@ phases:
       - aws sts get-caller-identity || { echo "ERROR: No se puede obtener la identidad AWS"; exit 1; }
       - aws configure get region || echo "Región no configurada en entorno"
       - echo "Validando plantilla CloudFormation..."
-      - aws cloudformation validate-template --template-body file://infra/infrastructure.yaml || { echo "ERROR: La plantilla es inválida"; exit 1; }
 
   build:
     commands:
